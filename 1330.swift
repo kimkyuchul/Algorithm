@@ -1,3 +1,4 @@
+import Foundation
 
 let valueArr = readLine()!.split(separator: " ").map({ (valueArr) -> Int in return Int(valueArr)! })
 let a = valueArr[0]
