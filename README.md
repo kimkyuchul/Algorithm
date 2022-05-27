@@ -1,2 +1,2 @@
 # Algorithm
-Algorithm Practice for Swift
+Algorithm Practice for Swift!
