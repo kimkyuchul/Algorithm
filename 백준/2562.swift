@@ -1,3 +1,5 @@
+import Foundation
+
 var num:[Int] = []
 
 for _ in 0...8 {
