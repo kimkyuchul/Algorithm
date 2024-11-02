@@ -1,5 +1,6 @@
 # Stack
-
+<details> <summary>Stack?</summary>
+    
 - 스택은 후입선출(Last In First Out LIFO) 원칙을 따른다.
 - 마지막에 추가된 요소가 가장 먼저 제거되는 요소의 집합
 - 스택에서의 연산은 요소를 스택에 추가하는 푸시와 스택의 맨위 요소를 제거하는 팝
@@ -26,9 +27,11 @@ stack.pop()
 
 print(stack)
 ```
+</details>
 
 # Queue
-
+<details> <summary>Queue?</summary>
+    
 - Queue는 선입선출(FIFO)
 - 가장 먼저 추가된 요소가 가장 먼저 제거된다.
 - 후방에 요소를 추가하는 인큐
@@ -64,8 +67,10 @@ queue.dequeue()
 print(queue)
 
 ```
+</details>
 
 # 연결리스트
+<details> <summary>단일연결리스트 && 이중연결리스트</summary>
 
 - 연결 리스트는 노드의 시퀸스로  구성된 데이터 구조
 - 각 노드는 값을 포함하고, 리스트의 다음 노드에 대한 참조를 포함
@@ -208,3 +213,5 @@ final class Node<T> {
 ```
 
 - delete할 노드의 바로 이전 노드의 next를 delete 할 노드의 next로 바꿔준다. ← 강조
+
+</details>
