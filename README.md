@@ -214,4 +214,264 @@ final class Node<T> {
 
 - delete할 노드의 바로 이전 노드의 next를 delete 할 노드의 next로 바꿔준다. ← 강조
 
+## 양방향 연결 리스트
+
+- **가장 첫 노드**를 가리키는 **head**와, **가장 마지막 노드**를 가리키는 **tail**을 두고, 내 **이전 노드**와, 내 **다음 노드** 두 노드를 **모두** **연결**
+
+```swift
+// 단방향과 똑같으나, 내 이전 노드를 알아야 하니, prev라는 놈이 추가
+final class Node<T> {
+    // prev란 내 이전 노드의 주소값
+    var prev: Node?
+    // data는 내 데이터를 저장
+    var value: T
+    // next는 내 다음 노드의 주소값
+    var next: Node?
+    
+    init(prev: Node? = nil, value: T, next: Node? = nil) {
+        self.prev = prev
+        self.value = value
+        self.next = next
+    }
+}
+
+final class DoublyLinkedList<T: Equatable> {
+    private var head: Node?
+    private var tail: Node?
+    private var size = 0 // 링크드 리스트의 크기
+```
+
+### **append(data:)**
+
+- **연결 리스트 맨 마지막에 노드 추가하기**
+
+```swift
+    func append(_ value: T) {
+        
+        //연결 리스트가 빈 경우, Node를 생성 후 head, tail로 지정한다
+        if head == nil || tail == nil {
+            head = Node(value: value)
+            tail = head
+            return
+        }
+        
+        let newNode = Node(value: value)
+        // 현재 tail의 next에다가 newNode를 연결
+        tail?.next = newNode
+        // newNode의 prev를 현재 tail로 연결
+        newNode.prev = tail
+        // tail은 늘 마지막 노드를 가리켜야 하니, tail을 newNode로
+        tail = newNode
+        
+        size += 1
+    }
+```
+
+1. 현재 tail의 next에다가 newNode를 연결 (가장 뒤에 연결할거기 떄문)
+2. newNode의 prev를 현재 tail로 연결 ( tail의 뒤에 연결 될 거기 때문에 newNode의 prev는 현재 tail)
+3.  tail은 늘 마지막 노드를 가리켜야 하니, tail을 newNode로
+4. size를 1 더한다.
+
+### **insert**
+
+- 인자로 받는 index가 head와 가까우면 head부터 next를 이용해 탐색
+- tail과 가까우면 tail부터 prev를 이용해 탐색
+
+```swift
+    func insert(_ value: T, index: Int) {
+        //연결 리스트가 빈 경우, Node를 생성 후 head, tail로 지정한다
+        if head == nil || tail == nil {
+            head = Node(value: value)
+            tail = head
+            return
+        }
+        
+        if index == 0 {
+            let newNode = Node(value: value)
+            // newNode가 헤드가 되야 하기 때문에 newNode의 next는 한칸 앞으로간 현재 헤드
+            newNode.next = head
+            // 한칸 앞으로 간 헤드의 뒷방향은 newNode
+            head?.prev = newNode
+            // 헤드는 newNode가 된다.
+            head = newNode
+            
+            size += 1
+            return
+        } else if index >= size {
+            let newNode = Node(value: value)
+            
+            // newNode가 tail이 되어야 하기 때문에 newNode의 prev는 한칸 뒤로간 현재 tail
+            newNode.prev = tail
+            // 한칸 뒤로 밀려난 tail의 next는 tail이 될 newNode
+            tail?.next = newNode
+            // tail은 newNode
+            tail = newNode
+            
+            size += 1
+            return
+        } else {
+            let half = (size / 2)
+            let isForward = (index <= half)
+            
+            var node: Node?
+            
+            if isForward {
+                node = head
+                for _ in 0..<index {
+                    // 헤드의 next부터 시작
+                    guard let next = node?.next else { return break }
+                    node = next
+                }
+            } else {
+                node = tail
+                for _ in 0..<(size - index) {
+                    guard let prev = node?.prev else { return break }
+                    node = prev
+                }
+                
+                // 노드의 다음 노드의 이전 노드는 새로운 노드
+                let newNode = Node(value: vale)
+                node?.next?.prev = newNode
+                // 삽입할 노드의 이전 방향은 노드
+                newNode.prev = node
+                // 노드의 다음은 새로운 노드
+                node?.next = newNode
+                
+                size += 1
+                return
+            }
+            
+        }
+    }
+```
+
+- if index == 0  → 헤드에 바로 넣으면 된다.
+- else if index >= size → tail에 바로 넣으면 된다.
+- 둘다 아니라면?
+    - size를 반으로 나눈 뒤 index 보다 size를 반으로 나눈 값이 같거나 더 클 경우 → 뒤부터
+    - 반대라면 앞부터 순회한다.
+
+### 중간 삽입 시 코드 이해하기
+
+```swift
+
+                let newNode = Node(value: vale)
+                // 노드의 다음 노드의 이전 노드는 새로운 노드
+                node?.next?.prev = newNode
+                // 삽입할 노드의 이전 방향은 노드
+                newNode.prev = node
+                // 노드의 다음은 새로운 노드
+                node?.next = newNode
+```
+
+A <-> B <-> C <-> D
+
+- 현재 `node`는 B를 가리킨다
+1. node?.next?.prev = newNode
+
+```swift
+// B의 다음 노드(C)의 prev를 X로 변경
+A <-> B <-> C <-> D
+        ↑    ↑
+       node  node.next
+             prev = X
+```
+
+2 . newNode.prev = node
+
+```swift
+// X의 prev를 B로 설정
+A <-> B <-> C <-> D
+        ↑    
+       node  
+        ↑    
+        X
+```
+
+1. node?.next = newNode
+
+```swift
+// B의 next를 X로 설정
+A <-> B <-> X <-> C <-> D
+
+// 최종 상태
+A <-> B <-> X <-> C <-> D
+```
+
+### removeAll()
+
+```swift
+    func removeAll() {
+        head = nil
+        tail = nil
+    }
+```
+
+- head와 tail을 nil로 변경하면 모든 노드가 알아서 제거
+
+### remove
+
+```swift
+    func remove(index: Int) {
+        guard size != 0 else { return }
+        
+        if index == 0 {
+            head = head?.next
+            head?.prev = nil
+            
+            size -= 1
+            
+            if size == 0 {
+                head = nil
+                tail = nil
+            }
+        } else if index >= size {
+            tail = tail?.prev
+            tail?.next = nil
+            
+            size -= 1
+            
+            if size == 0 {
+                head = nil
+                tail = nil
+            }
+        } else {
+            let half = size / 2
+            let isForward = (index <= half)
+            
+            var node: Node?
+            if isForward {
+                node = head
+                for _ in 0..<index {
+                    guard let next = node?.next else { break }
+                    node = next
+                }
+            } else {
+                node = tail
+                for _ in 0..<(size-index-1) {
+                    guard let prev = node?.prev else { break }
+                    node = prev
+                }
+            }
+            
+            // 현재 노드의 뒤에 존재하는 노드의 넥스트는 제거할 노드의 다음 노드
+            node?.prev?.next = node?.next
+            // 현재 노드의 다음 노드의 이전은 현재 노드의 이전
+            node?.next?.prev = node?.prev
+            
+            size -= 1
+        }
+        
+        if isEmpty {
+            head = nil
+            tail = nil
+        }
+    }
+```
+
+- insert와 거의 동일
+- 중간 노드 일 시 중간 노드를 찾아낸 후
+- 노드의 뒤에 존재하는 노드의 넥스트를 현재 노드의 넥스트로 설정
+- 현재 노드의 다음 노드의 이전은 현재 노드의 이전으로 설정
+
 </details>
