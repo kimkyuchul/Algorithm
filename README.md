@@ -590,6 +590,8 @@ for coin in array {
 - 다시 말해 K가2 이상이기만 하면 1을 빼는거보다 항상 빠르게 줄일 수 있다.
     - 또한 N은 항상 1에 도달하게 됨
     - 애초에 N이 양의 정수라는 가정 하에 그냥 1씩 뺀다면 언젠가 1로 바뀐다.
+
+</details>
  
 # 구현, 시뮬레이션 (이코테)
 <details> <summary>구현, 시뮬레이션?</summary>
@@ -773,3 +775,5 @@ if let inputData = readLine() {
     print(result)
 }
 ```
+
+</details>
