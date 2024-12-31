@@ -777,3 +777,199 @@ if let inputData = readLine() {
 ```
 
 </details>
+
+# 이진탐색
+<details> <summary>이진탐색?</summary>
+
+### 이진 탐색
+
+```swift
+let numbers = [11, 59, 3, 2, 53, 17, 31, 7, 19, 67, 47, 13, 37, 61, 29, 43, 5, 41, 23]
+
+numbers.indexOf(43)  // returns 15
+
+// indexOf를 실제로 구현 했을 때
+func linearSearch<T: Equatable>(_ a: [T], _ key: T) -> Int? {
+    for i in 0 ..< a.count {
+        if a[i] == key {
+            return i
+        }
+    }
+    return nil
+}
+```
+
+- 배열에 숫자가 있고 배열에 특정 숫자가 있는지와 인덱스 위치를 확인하려한다고 가정 했을 때 swift에서는 IndexOf를 활용하면 된다.
+- 내장된indexOf() 함수는 [선형 검색(linear search)](https://github.com/kodecocodes/swift-algorithm-club/tree/master/Linear%20Search)을 수행합니다.
+- linearSearch는 찾고자 하는 요소를 찾을 때까지, 처음부터 배열 전체를 반복한다. 최악의 경우 배열 내에 값은 없고 모든 작업은 수행되지 않음
+- 선형 검색 알고리즘은 배열의 값 절반을 조사 → 느리다
+
+### *바이너리 검색(binary search)*
+
+- 값을 찾을때까지 배열을 반으로 나누는 *바이너리 검색을 통해  속도를 높일 수 있다.*
+- n크기의 배열에 대해, 성능이 선형(linear) 검색처럼O(n)이 아니라O(log n)
+- 이진 검색을 사용할때 단점 → **무조건 정렬이 되어 있어야 한다.**
+
+### 이진 검색 동작 방법
+
+- 배열의 절반을 나누고 찾고자 하는 것이 검색(search) 키 왼쪽에 있는지 오른쪽에 있는지 확인
+- **검색 키의 절반을 어떻게 결정 →  배열을 먼저 정렬했으므로 간단하게 `<`나 `>`로 비교**
+- 검색 키가 왼쪽 절반에 있다면, 그쪽을 반복해서 처리 왼쪽 절반을 두개로 나누고 검색키가 어디에 있는지 확인 (오른쪽 절반에 있을때에도 마찬가지)
+- 검색 키가 발견될때까지 반복  배열을 더 이상 나눌수 없을때, 유감스럽지만 배열내에 검색키가 없다는 결론을 내려야 한다.
+
+```swift
+let numbers = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67]
+
+//numbers.indexOf(37)  // returns 15
+
+func binarySearch<T: Comparable>(_ a: [T], key: T, range: Range<Int>) -> Int? {
+    if range.lowerBound >= range.upperBound {
+        // If we get here, then the search key is not present in the array.
+        return nil
+
+    } else {
+        // Calculate where to split the array.
+        let midIndex = range.lowerBound + (range.upperBound - range.lowerBound) / 2
+        
+        print("midIndex \(midIndex)")
+
+        // Is the search key in the left half?
+        if a[midIndex] > key {
+            return binarySearch(a, key: key, range: range.lowerBound ..< midIndex)
+
+        // Is the search key in the right half?
+        } else if a[midIndex] < key {
+            return binarySearch(a, key: key, range: midIndex + 1 ..< range.upperBound)
+
+        // If we get here, then we've found the search key!
+        } else {
+            return midIndex
+        }
+    }
+}
+
+print(binarySearch(numbers, key: 43, range: 0 ..< numbers.count))  // gives 13
+```
+
+- 처음에는 lowerBound = 0과 upperBound = 19 범위.
+- 이러한 값들을 채우면,midIndex는 0 + (19 - 0)/2 = 19/2 = 9
+- 실제로9.5이지만 정수를 사용하기에 반올림
+
+```swift
+[ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67 ]
+                                  *
+                                  
+if a[midIndex] > key {
+    // use left half
+    return binarySearch(a, key: key, range: range.lowerBound ..< midIndex)
+} else if a[midIndex] < key {
+    // use right half
+    return binarySearch(a, key: key, range: midIndex + 1 ..< range.upperBound)
+} else {
+    return midIndex
+}
+```
+
+- a[midIndex] = 29 검색 키(43)보다 작기 때문에, 검색키가 배열의 왼쪽 절반에 없다는 결론을 내릴수 있다. 따라서 검색키는 오른쪽 절반 어디에 있어야 함
+- a[midIndex] > key  → range.lowerBound ..< midIndex(0..<9)까지 다시 재귀적으로 실행
+- a[midIndex] < key → midIndex = 10 + (19 - 10)/2 = 14
+
+[https://github.com/kodecocodes/swift-algorithm-club/tree/master/Binary Search](https://github.com/kodecocodes/swift-algorithm-club/tree/master/Binary%20Search)
+
+### 재귀 말고 반복문으로 쉽게 표현
+
+```swift
+
+// 반복문으로 구현하기
+func binarySearch(_ array: [Int], num: Int) -> Bool {
+    var start = 0
+    var end = (array.count - 1)
+    
+    while start <= end {
+        let mid = (start + end) / 2
+        
+        if array[mid] == num { return true }
+        if array[mid] > num {
+            end = mid - 1
+        } else {
+            start = mid + 1
+        }
+    }
+    return false
+}
+
+```
+
+- 처음에 mid로 반을 쪼갠다 → (0 + 9) / 2 = 5
+- array[mid] > num → end = 4
+    - 다시 mid로 쪼갠다 → (0+4) / 2 = 2
+- array[mid] < num → Start = 6
+    - 다시 mid로 쪼갠다 → (6+9) / 2 = 8
+
+### 백준 수찾기 (이진탐색)
+
+```swift
+import Foundation
+
+let N = Int(readLine()!)!
+var nArray = readLine()!.split(separator: " ").map { Int($0)! }
+let M = Int(readLine()!)!
+var mArray = readLine()!.split(separator: " ").map { Int($0)! }
+
+nArray.sort()
+
+for m in 0..<M {
+    print(binarySearch(nArray, mArray[m]))
+}
+
+func binarySearch(_ array: [Int], _ key: Int) -> Int {
+    var start = 0
+    var end = array.count - 1
+    
+    while start <= end {
+        let mid = (start + end) / 2
+        
+        if nArray[mid] == key {
+            return 1
+        } else if nArray[mid] > key {
+            end = mid - 1
+        } else {
+            start = mid + 1
+        }
+    }
+    
+    return 0
+}
+
+// 5
+// 4 1 5 2 3
+// 정렬 후
+// 1, 2, 3, 4, 5
+// 5
+// 1 3 5 7 9
+
+// 첫째 줄에 자연수 N(1 ≤ N ≤ 100,000)이 주어진다. 다음 줄에는 N개의 정수 A[1], A[2], …, A[N]이 주어진다. 다음 줄에는 M(1 ≤ M ≤ 100,000)이 주어진다. 다음 줄에는 M개의 수들이 주어지는데, 이 수들이 A안에 존재하는지 알아내면 된다
+
+// N을 정렬하고 해당 배열을 이분 탐색 해야 함
+// nArray.sort()로 정렬
+// for m in 0..<M { -> M 만큼(M어레이의 카운트) 반복문을 돌면서 mArray[i] 를 키로 지정
+// 이분 탐색의 시작은 0, end는 nArray의 길이 - 1 (그냥 N을 써도 됨)
+// mid는 (0+4) / 2 = 2
+
+// while 문 시작
+// if nArray[mid](2) == key와 같다면 1을 방출 (nArray[2] = 3, key = 1)
+//  else if nArray[2](3) > key(1) 라면 -> end(4) = mid(2) - 1 == 1
+//  let mid = (start + end) / 2 -> mid는 (0+1) / 2 == 1
+
+// while 문 시작
+// if nArray[mid](1) == key ==> nArray[mid](1)는 2, key는 1
+//  else if nArray[mid](1)(값: 2) > key(값: 1) { ==> end(1) = mid(1) - 1 == 0
+// let mid = (start + end) / 2 -> mid는 (0+0) / 2 == 0
+
+// while 문 시작
+// if nArray[mid](0) == key ==> nArray[mid](0)는 1, key는 1
+// return 1이 된다.
+```
+
+
+</details>
