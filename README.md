@@ -988,9 +988,6 @@ func binarySearch(_ key: Int) -> Int {
         
         if nArray[mid] == key {
             sum += 1
-            
-            
-            
         } else if nArray[mid] < key {
             start = mid + 1
         } else {
@@ -1028,9 +1025,9 @@ var answer = ""
 // 중복된 값들 중에 가장 앞에 있는 인덱스 (first)
 func lowerBound(_ key: Int) -> Int {
     var start = 0
-    var end = nArray.count - 1
+    var end = nArray.count
     
-    while start <= end {
+    while start < end {
         let mid = (start + end) / 2
         
         // nArray는 정렬한 상태이기 때문에 1,2,3,4,5 이런 형식으로 구성
@@ -1047,9 +1044,9 @@ func lowerBound(_ key: Int) -> Int {
 // 중복된 값들 중에 가장 뒤에 있는 인덱스의 + 1 (last + 1)
 func upperBound(_ key: Int) -> Int {
     var start = 0
-    var end = nArray.count - 1
+    var end = nArray.count
     
-    while start <= end {
+    while start < end {
         let mid = (start + end) / 2
         
         if nArray[mid] <= key { // 중간값이 찾는 값보다 작거나 같으면
