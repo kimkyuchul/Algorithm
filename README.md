@@ -1099,3 +1099,171 @@ print(answer)
 
 
 </details>
+
+# 파라메트릭 서치
+<details> <summary>파라메트릭 서치?</summary>
+
+### 이분 탐색 (Binary Search)을 써야 할 때
+
+- "특정 값을 찾아라" → ex) "정렬된 배열에서 특정 숫자의 위치를 찾아라”
+- 정렬된 배열에서 값의 존재 여부나 위치를 찾는 문제 → ex) "정렬된 배열에서 특정 숫자가 처음 등장하는 위치를 찾아라”
+- 답이 정확히 있거나 없음
+
+### 파라메트릭 서치 문제의 특징:
+
+- "조건을 만족하는 최대/최소값을 찾아라" → ex) "N개의 랜선을 잘라서 M개를 만들 수 있는 최대 길이는?”
+- 답이 가능한 범위 내에서 최적값을 찾는 문제 → ex) “심사관이 모든 사람을 심사하는데 걸리는 최소 시간은?”
+- Yes/No 판단으로 좁혀갈 수 있음 → ex) "M개의 블루레이에 강의를 담을 때 가능한 최소 크기는?”
+
+### 파라메트릭과 이분 탐색 (Binary Search) 와 차이점
+
+- 1) while 조건이 < 로 바뀐다. ( start < end )
+- 2) end = mid 로 +1 을 하지 않는다. ( 조건문에 따라서 달라짐 )
+- 3) 끝으로 end 를 return 한다.
+
+```swift
+// 일반적인 이진 탐색
+func binarySearch(_ arr: [Int], _ target: Int) -> Int {
+    var start = 0
+    var end = arr.count - 1
+    
+    while start <= end {               // 1. <= 사용
+        let mid = (start + end) / 2
+        
+        if arr[mid] == target {
+            return mid
+        } else if arr[mid] < target {
+            start = mid + 1
+        } else {
+            end = mid - 1             // 2. end = mid - 1
+        }
+    }
+    return -1                         // 3. 못 찾으면 -1 반환
+}
+
+// 파라메트릭 서치
+func parametricSearch(_ arr: [Int], _ target: Int) -> Int {
+    var start = 0
+    var end = arr.max()!
+    
+    while start < end {               // 1. < 사용
+        let mid = (start + end) / 2
+        var sum = 0
+        
+        for x in arr {
+            // 조건 검사 예시
+            if x > mid {
+                sum += mid
+            } else {
+                sum += x
+            }
+        }
+        
+        if sum <= target {
+            start = mid + 1
+        } else {
+            end = mid                 // 2. end = mid
+        }
+    }
+    return end                        // 3. end 반환
+}
+```
+
+각 차이점의 이유:
+
+1. `while start < end` 사용:
+    - 파라메트릭 서치는 "최적값"을 찾는 것이 목적
+    - 범위가 하나로 수렴할 때까지 실행
+    - start와 end가 같아지는 지점이 바로 답이 됨
+2. `end = mid` 사용:
+    - 파라메트릭 서치에서는 현재 mid값이 조건을 만족할 수 있는 후보가 될 수 있음
+    - mid값을 포함시켜야 하므로 -1을 하지 않음
+    - 범위를 좁혀가면서 최적값을 찾음
+3. `return end` 사용:
+    - while문이 종료될 때 start와 end가 같아짐
+    - 이 지점이 바로 조건을 만족하는 최적값
+    - start나 end 둘 다 같은 값을 가리키므로 어느 것을 반환해도 됨
+
+```swift
+func cutTree(_ trees: [Int], _ target: Int) -> Int {
+    var start = 0
+    var end = trees.max()!
+    
+    while start < end {
+        let mid = (start + end + 1) / 2
+        var sum = 0
+        
+        // 나무를 mid 높이로 잘랐을 때 얻을 수 있는 나무의 양 계산
+        for tree in trees {
+            if tree > mid {
+                sum += tree - mid
+            }
+        }
+        
+        if sum >= target {
+            start = mid    // 더 높은 높이로 잘라볼 수 있음
+        } else {
+            end = mid - 1  // 높이를 낮춰야 함
+        }
+    }
+    return end
+}
+
+// 사용 예시
+let trees = [20, 15, 10, 17]
+let target = 7
+print(cutTree(trees, target))  // 나무를 잘라서 target 길이를 얻을 수 있는 최대 높이
+```
+
+- 예시 나무 자르기
+
+### 파라매틱 서치에서 <=를 쓰는 경우
+
+```swift
+// 예: 예산 문제 (백준 2512)
+while start <= end {
+    let mid = (start + end) / 2
+    var sum = 0
+    
+    for budget in budgets {
+        sum += min(budget, mid)
+    }
+    
+    if sum <= M {
+        answer = mid    // 가능한 값을 따로 저장
+        start = mid + 1
+    } else {
+        end = mid - 1
+    }
+}
+```
+
+- 정확한 값을 찾아야 하는 경우
+
+```swift
+// 예: 최소/최대값을 정확히 찾아야 하는 경우
+while start <= end {
+    let mid = (start + end) / 2
+    
+    if isValid(mid) {
+        result = mid     // 현재 값 저장 필요
+        start = mid + 1  // 더 큰 값이 있는지 확인
+    } else {
+        end = mid - 1
+    }
+}
+```
+
+- 마지막 값까지 확인이 필요한 경우
+- 값을 저장해야 하는 경우
+    - 중간 결과를 별도 변수(answer)에 저장
+    - 마지막으로 저장된 값이 최종 답이 됨
+    
+
+주의사항:
+
+- `<=`를 사용할 때는 반드시 answer 같은 별도 변수에 결과 저장 필요
+- `mid + 1`, `mid - 1`로 범위를 좁혀야 함
+- 무한루프 가능성 주의
+
+</details>
