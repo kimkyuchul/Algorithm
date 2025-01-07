@@ -1267,3 +1267,358 @@ while start <= end {
 - 무한루프 가능성 주의
 
 </details>
+
+# 그래프 탐색 알고리즘: DFS (이코테)
+<details> <summary>DFS?</summary>
+
+그래프 탐색 알고리즘?
+
+- 탐색이란 많은 양의 데이터 중에서 원하는 데이터를 찾는 과정
+- 대표적인 그래프 탐색 알고리즘 → DFS와 BFS
+
+## 스택 자료구조
+
+![스크린샷 2025-01-07 오후 10.44.18.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/6be02357-49ae-4e4c-ad92-7c265d12ed72/25489161-85a0-4ca5-bb9a-949ed177b3b1/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-01-07_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_10.44.18.png)
+
+- 먼저 들어 온 데이터가 나중에 나가는 형식(선입후출)
+- 입구와 출구가 동일한 형태로 스택을 시각화
+
+### 백준 제로 문제
+
+```swift
+import Foundation
+
+let k = Int(readLine()!)!
+
+var stack: [Int] = []
+var result = 0
+
+for _ in 0..<k {
+    let input = Int(readLine()!)!
+    
+    if input != 0 {
+        stack.append(input)
+    } else {
+        stack.popLast()
+    }
+}
+
+for i in stack {
+    result += i
+}
+
+print(result)
+```
+
+- 스택의 대표적인 문제
+
+## 큐 자료구조
+
+![스크린샷 2025-01-07 오후 10.49.28.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/6be02357-49ae-4e4c-ad92-7c265d12ed72/1d1bfe7f-e01c-4475-b829-493dad0c19a6/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-01-07_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_10.49.28.png)
+
+- 먼저 들어온 데이터가 먼저 나가는 형식(산입선출)의 자료구조
+- 큐는 입구와 출구가 모두 뚫려 있는 터널과 같은 형태로 시각화
+
+### swift 큐 자료구조
+
+```swift
+struct Queue<T> {
+    private var queue: [T?] = []
+    private var head: Int = 0
+    
+    public var count: Int {
+        return queue.count
+    }
+    
+    public var isEmpty: Bool {
+        return queue.isEmpty
+    }
+    
+    public mutating func enqueue(_ element: T) {
+        queue.append(element)
+    }
+    
+    public mutating func dequeue() -> T? {
+        guard head <= queue.count, let element = queue[head] else { return nil }
+        queue[head] = nil
+        head += 1
+        
+        if head > 50 {
+            queue.removeFirst(head)
+            head = 0
+        }
+        return element
+    }
+}
+
+// 더블 스택 큐
+struct DoubleStackQueue<Element>: Queueable {
+    private var inStack = [Element]()
+    private var outStack = [Element]()
+    
+    mutating func enqueue(_ newElement: Element) {
+        inStack.append(newElement)
+    }
+    
+    mutating func dequeue() -> Element? {
+        if outStack.isEmpty {
+            outStack = inStack.reversed()
+            inStack.removeAll()
+        }
+        
+        return outStack.popLast()
+    }
+}
+```
+
+## 재귀 함수
+
+- 자기 자신을 다시 호출하는 함수
+- 재귀 함수를 문제 풀이에서 사용할 때는 재귀 함수의 종료 조건을 반드시 명시해야 한다.
+- 종료 조건을 명시하지 않으먄 무한히 호출된다.
+    
+    ```swift
+    func recursive(_ i: Int) {
+    	if i == 100 {
+    		return
+    	}
+    
+    	print("재귀")
+    	recursive(i + 1)
+    }
+    
+    recursive(1)
+    ```
+    
+
+## 팩토리얼
+
+- n! = 1 X 2 X 3 X … X(n-1) X n
+- 수학적으로 0!과 1!의 값은 1이다.
+    
+    ```swift
+    func factorial(_ n: Int) -> Int {
+        if n <= 1 {
+            return 1 // n이 1이하인 경우 1을 반환
+        }
+        // n! = n * n(n - 1)!를 그대로 코드로 작성
+        return n * factorial(n - 1)
+    }
+    
+    print(factorial(5))
+    ```
+    
+
+## 최대공약수 계산 (유클리드 호재법)
+
+- 두개의 자연수에 대한 최대 공약수(두개 자연수의 공통된 약수중에 가장 큰 값)를 구하는 대표적인 알고리즘
+
+### 유클리드 호재법
+
+- 두 자연수 a, b에 대하여 (A > B) A를 B로 나눈 나머지를 R이라고 하자
+- 이때 A와 B의 최대공약수는 B와 R의 최대공약수와 같다
+    
+    ```swift
+    func gcd(_ a: Int, _ b: Int) -> Int {
+    		// a가 b의 배수라면 b를 반환
+        if a % b == 0 {
+            return b
+        } else {
+    		    // b와 a를 b로 나눈 나머지를 인자로 하여 재귀한다.
+            return gcd(b, a % b)
+        }
+    }
+    
+    // a, b의 순서가 바뀌어도 상관 없음
+    print(gcd(192, 162)) // 실행 결과 6
+    ```
+    
+    - 재귀 함수를 잘 활용하면 복잡한 알고리즘을 간결하게 사용 가능
+    - 모든 재귀 함수는 반복문으로 이용하여 동일한 기능을 구현 가능
+    - 재귀 함수가 반복문보다 유리할수도 불리한 경우도 있다.
+    - 컴퓨터가 함수를 연속적으로 호출하면 컴퓨터 메모리 내부의 스택 프레임에 쌓인다.
+        - 스택을 사용해야 할 때 스택 라이브러리 대신 재귀 함수를 이용하는 경우가 많다. → DFS
+
+## DFS
+
+- 깊이 우선 탐색이라고 부르며 그래프에서 깊은 부분을 우선적으로 탐색
+- DFS는 스택 자료구조(혹은 재귀)를 이용
+    1. 탐색 시작 노드를 스택에 삽입하고 방문 처리 한다.
+    2. 스택의 최상단 노드에 방문하지 않은 인접한 노드가 하나라도 있으면 그 노드를 스택에 넣고 방문 처리 한다. 방문하지 않은 인접 노드가 없으면 스택에서 최상단 노드를 꺼낸다.
+    3. 더 이상 2번의 과정을 수행할 수 없을 때까지 반복
+        
+        ![스크린샷 2025-01-07 오후 11.18.58.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/6be02357-49ae-4e4c-ad92-7c265d12ed72/7f11ed07-3362-4e85-9ef6-0fc14d713930/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-01-07_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_11.18.58.png)
+        
+
+### 나동빈 파이썬 to Swift DFS
+
+```swift
+// DFS 메서드 정의
+func dfs(graph: [[Int]], v: Int, visited: inout [Bool]) {
+    // 현재 노드를 방문 처리
+    visited[v] = true
+    print(v, terminator: " ")
+    
+    // 현재 노드와 연결된 다른 노드를 재귀적으로 방문
+    for i in graph[v] {
+        if !visited[i] {
+            dfs(graph: graph, v: i, visited: &visited)
+        }
+    }
+}
+
+// 각 노드가 연결된 정보를 표현 (2차원 리스트)
+let graph: [[Int]] = [
+    [], // 0번 노드는 사용하지 않음
+    [2, 3, 8], // 1번 노드
+    [1, 7],    // 2번 노드
+    [1, 4, 5], // 3번 노드
+    [3, 5],    // 4번 노드
+    [3, 4],    // 5번 노드
+    [7],       // 6번 노드
+    [2, 6, 8], // 7번 노드
+    [1, 7]     // 8번 노드
+]
+
+// 각 노드가 방문된 정보를 표현 (1차원 리스트)
+var visited = Array(repeating: false, count: 9)
+
+// 정의된 DFS 함수 호출
+dfs(graph: graph, v: 1, visited: &visited)
+```
+
+1. **첫 번째 실행 (v=1)**
+    
+    ```swift
+    graph[1] = [2, 3, 8]
+    ```
+    
+    - i는 순서대로 2, 3, 8을 순회합니다
+    - visited[2]가 false이므로 dfs(v=2) 호출
+2. **두 번째 실행 (v=2)**
+    
+    ```swift
+    graph[2] = [1, 7]
+    ```
+    
+    - i는 1, 7을 순회
+    - visited[1]은 true라서 건너뜀
+    - visited[7]이 false이므로 dfs(v=7) 호출
+3. **세 번째 실행 (v=7)**
+    
+    ```swift
+    graph[7] = [2, 6, 8]
+    ```
+    
+    - i는 2, 6, 8을 순회
+    - visited[2]는 true라서 건너뜀
+    - visited[6]이 false이므로 dfs(v=6) 호출
+
+### 나동빈 - 음료수 얼려먹기 Swift
+
+```swift
+import Foundation
+
+let nm = readLine()!.split(separator: " ").map{ Int($0)! }
+let n = nm[0]
+let m = nm[1]
+var iceFrame = [[Int]]()
+
+for _ in 0..<n {
+    iceFrame.append(readLine()!.split(separator: " ").map{ Int($0)! })
+}
+
+// 방향키: 상하좌우
+let dx = [-1, 1, 0, 0]
+let dy = [0, 0, -1, 1]
+
+private func dfs(x: Int, y: Int) -> Bool {
+
+    // 범위 벗어나면 끝
+    if x < 0 || y < 0 || x >= n || y >= m {
+        return false
+    }
+
+    // 방문처리 안된 곳이라면 더 파고들어서 인접 노드 확인
+    if iceFrame[x][y] == 0 {
+        iceFrame[x][y] = 1
+        for i in 0..<4 {
+            let nx = x + dx[i]
+            let ny = y + dy[i]
+            dfs(x: nx, y: ny)
+        }
+        return true
+    }
+    return false
+}
+
+var result = 0
+for i in 0..<n {
+    for j in 0..<m {
+        if dfs(x: i, y: j) {
+            result += 1
+        }
+    }
+}
+
+print(result)
+```
+
+- if x < 0 || y < 0 || x >= n || y >= m 조건을 막는 이유
+    
+    ```swift
+    (0,0) (0,1) (0,2)
+    (1,0) (1,1) (1,2)
+    (2,0) (2,1) (2,2)
+    
+    let dx = [-1, 1, 0, 0]  // 상하좌우
+    let dy = [0, 0, -1, 1]  // 상하좌우
+    
+    현재 위치 = (0,0)
+    위로 이동: 
+    nx = 0 + dx[0] = 0 + (-1) = -1
+    ny = 0 + dy[0] = 0 + 0 = 0
+    새로운 위치 = (-1,0) ← 이건 배열에 존재하지 않는 위치!
+    ```
+    
+    - `x < 0`: 배열의 위쪽 경계를 넘어갈 때
+    - `y < 0`: 배열의 왼쪽 경계를 넘어갈 때
+    - `x >= n`: 배열의 아래쪽 경계를 넘어갈 때
+    - `y >= m`: 배열의 오른쪽 경계를 넘어갈 때
+- 방문처리 안된 곳이라면 더 파고들어서 인접 노드 확인 과정
+
+```swift
+1) iceFrame[0][0] == 0 인지 체크 
+   -> 0이므로 조건문 실행
+
+2) iceFrame[0][0] = 1로 변경 (방문 처리)
+   1 0 1 1 0
+   0 0 0 1 1
+   1 1 1 1 1
+   0 0 0 0 0
+
+3) 상하좌우 체크 시작 (i가 0부터 3까지):
+   i=0 (상): nx = 0+(-1)=-1, ny = 0+0=0
+   -> 범위 벗어나서 false 반환
+
+   i=1 (하): nx = 0+1=1, ny = 0+0=0
+   -> (1,0) 위치 DFS 시작
+      iceFrame[1][0] == 0이므로 1로 변경
+      1 0 1 1 0
+      1 0 0 1 1
+      1 1 1 1 1
+      0 0 0 0 0
+
+   i=2 (좌): nx = 0+0=0, ny = 0+(-1)=-1
+   -> 범위 벗어나서 false 반환
+
+   i=3 (우): nx = 0+0=0, ny = 0+1=1
+   -> (0,1) 위치 DFS 시작
+      iceFrame[0][1] == 0이므로 1로 변경
+      1 1 1 1 0
+      1 0 0 1 1
+      1 1 1 1 1
+      0 0 0 0 0
+```
+
+</details>
