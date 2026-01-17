@@ -1,69 +1,74 @@
-//: [Previous](@previous)
+let n = Int(readLine()!)!
+var q = Queue()
 
-import Foundation
-
-let input = Int(readLine()!)!
-
-var queue: [Int] = []
-
-func push(_ v: Int) {
-    queue.append(v)
-}
-
-func pop() -> Int {
-    if queue.isEmpty {
-        return -1
-    } else {
-        return queue.removeFirst()
-    }
-}
-
-func size() -> Int {
-    return queue.count
-}
-
-func empty() -> Int {
-    if queue.isEmpty {
-        return 1
-    } else {
-        return 0
-    }
-}
-
-
-func front() -> Int {
-    return queue.first ?? -1
-}
-
-func back() -> Int {
-    return queue.last ?? -1
-}
-
-for _ in 0..<input {
-    let result = readLine()!.split(separator: " ").map { String($0) }
+for i in 0..<n {
+    let line = readLine()!.split(separator: " ")
+    let cmd = line[0]
     
-    
-    switch result[0] {
+    switch cmd {
     case "push":
-        push(Int(result[1])!)
+        let x = Int(line[1])!
+        q.push(x)
         
     case "pop":
-        print(pop())
+        q.pop()
         
     case "size":
-        print(size())
+        q.size()
         
     case "empty":
-        print(empty())
+        q.empty()
         
     case "front":
-        print(front())
+        q.front()
         
     case "back":
-        print(back())
-    
+        q.back()
+        
     default:
         break
     }
 }
 
+struct Queue {
+    var array: [Int] = []
+    
+    mutating func push(_ x: Int) {
+        array.append(x)
+    }
+    
+    mutating func pop() {
+        guard !array.isEmpty else {
+            print(-1)
+            return
+        }
+        
+        print(array.removeFirst())
+    }
+    
+    func size() {
+        print(array.count)
+    }
+    
+    func empty() {
+        print(array.isEmpty ? 1 : 0)
+    }
+        
+    func front() {
+        guard let first = array.first else {
+            print(-1)
+            return
+        }
+        
+        print(first)
+    }
+    
+    func back() {
+        guard let last = array.last else {
+            print(-1)
+            return
+        }
+        
+        print(last)
+    }
+}
